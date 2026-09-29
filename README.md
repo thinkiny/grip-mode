@@ -121,7 +121,21 @@ Run `M-x customize-group RET grip RET` or set the variables.
 
 ;; Set to allow real-time refresh
 (setq grip-real-time-refresh t)
+
+;; Optionally return a project root for each preview file. go-grip serves this
+;; directory and reuses one server for files with the same root.
+(setq grip-project-root-function
+      (lambda (preview-file)
+        (projectile-project-root (file-name-directory preview-file))))
+
+;; Optionally display the preview yourself. Return non-nil when handled.
+(setq grip-preview-display-function
+      (lambda (url preview-file)
+        (custom-preview-display url preview-file)
+        t))
 ```
+
+When `grip-command` is `go-grip` and `grip-project-root-function` is configured, grip-mode passes the resolved directory to go-grip as its URL namespace root. Preview URLs retain their project-relative paths, and buffers in the same project reuse one live go-grip server and port. A callback result of nil falls back to the preview file's directory. This feature requires a go-grip build that supports the `--root` option; with no callback configured, grip-mode remains compatible with stock go-grip.
 
 If you don't set them you may have limitation to access Github APIs. Please
 visit [Grip Access](https://github.com/joeyespo/grip#access) for details.
